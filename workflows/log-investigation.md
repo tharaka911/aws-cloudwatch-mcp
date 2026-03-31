@@ -29,6 +29,9 @@ For most investigations, use the rapid-access script located in the repository. 
 For complex filtering, use the **`custom/cloudwatch-mcp-server`**. This server is optimized to handle AWS profile mounting issues in Docker.
 
 ### Configuration
+Before starting, ensure your local AWS profile is configured correctly.
+- **Reference**: [AWS Credentials & Profile Setup](file:///Users/tharaka/kingit-developments/sharkroll/custom-aws-cloud-watch-mcp/aws-setup.md)
+
 Ensure your `mcp_config.json` uses the `custom/cloudwatch-mcp-server` image with correctly mapped `AWS_CONFIG_FILE` and `AWS_SHARED_CREDENTIALS_FILE` environment variables.
 
 ---

@@ -38,6 +38,10 @@ When starting a log-related task, include `@memory.md` in your prompt.
 
 ## 🚀 Setup & Installation
 
+### 0. AWS Credentials Setup
+Before building or using the MCP server, ensure you have an AWS profile configured with the correct credentials.
+- **Guide**: [AWS Credentials & Profile Setup](file:///Users/tharaka/kingit-developments/sharkroll/custom-aws-cloud-watch-mcp/aws-setup.md)
+
 ### 1. Build the MCP Server
 Build the Docker image to ensure AWS authentication and profiles are handled correctly within the container:
 ```bash
