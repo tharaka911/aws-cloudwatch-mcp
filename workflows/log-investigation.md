@@ -12,13 +12,14 @@ Use this workflow to quickly query logs across different Sharkroll services.
 | **Web** | `/ecs/shark-dev-web` | REST API requests, public endpoints |
 | **Worker** | `/ecs/shark-dev-worker` | Message broker consumers, background tasks |
 | **Cron** | `/ecs/shark-dev-cron` | Scheduled tasks, rake-back, leader jobs |
+| **Notification** | `/ecs/shark-dev-notification` | Real-time SSE, Redis Pub/Sub, client events |
 
 ## Fast Log Retrieval (Recommended)
 For most investigations, use the rapid-access script located in the repository. It is significantly faster than standard Insights queries.
 
 ### 1. Using the Helper Script
 ```bash
-./scripts/aws_log_helper.sh [web|worker|cron] [duration]
+./scripts/aws_log_helper.sh [web|worker|cron|notification] [duration]
 ```
 - **Execution**: Can be run by the user or the AI Assistant.
 - **Example**: `./scripts/aws_log_helper.sh worker 5m`
@@ -80,4 +81,5 @@ aws logs start-query --log-group-name /ecs/shark-dev-web \
    - Web: `/ecs/shark-dev-web`
    - Worker: `/ecs/shark-dev-worker`
    - Cron: `/ecs/shark-dev-cron`
+   - Notification: `/ecs/shark-dev-notification`
 4. **Output Management**: Redirect large log outputs to a temporary file (e.g., `/tmp/logs.txt`) before analysis to avoid context window flooding.

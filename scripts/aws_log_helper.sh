@@ -18,8 +18,11 @@ case $SERVICE in
   cron)
     LOG_GROUP="/ecs/shark-dev-cron"
     ;;
+  notification)
+    LOG_GROUP="/ecs/shark-dev-notification"
+    ;;
   *)
-    echo "Usage: $0 [web|worker|cron] [duration]"
+    echo "Usage: $0 [web|worker|cron|notification] [duration]"
     exit 1
     ;;
 esac
