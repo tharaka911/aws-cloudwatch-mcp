@@ -2,7 +2,7 @@
 
 This file serves as a reference for log groups and common troubleshooting queries handled by this MCP server.
 
-## ☁️ Sharkroll Dev Environment Log Groups
+## ☁️ Sharkroll Dev Environment Log Groups (us-east-1)
 
 | Service | Log Group | Purpose |
 | :--- | :--- | :--- |
@@ -11,6 +11,18 @@ This file serves as a reference for log groups and common troubleshooting querie
 | **Cron** | `/ecs/shark-dev-cron` | Scheduled tasks, daily rewards, maintenance. |
 | **Admin** | `/ecs/shark-dev-admin` | Internal back-office and admin panel activity. |
 | **Database** | `/aws/rds/instance/shark-dev-db2/postgresql` | RDS PostgreSQL logs for debugging queries/locks. |
+
+---
+
+## ☁️ Sharkroll Prod Environment Log Groups (eu-west-1)
+
+| Service | Log Group | Purpose |
+| :--- | :--- | :--- |
+| **Web API** | `/ecs/shark-prod-web` | Public REST API, entry point for player requests. |
+| **Worker** | `/ecs/shark-prod-worker` | Message processing, async jobs. |
+| **Cron** | `/ecs/shark-prod-cron` | Scheduled tasks, daily rewards, maintenance. |
+| **Notification** | `/ecs/shark-prod-notification` | Real-time SSE, Redis Pub/Sub, client events. |
+| **Database** | `/aws/rds/instance/sharkroll-prod-read1/postgresql` | RDS PostgreSQL logs for debugging queries/locks. |
 
 ---
 
@@ -43,5 +55,5 @@ fields @timestamp, @message, responseTime
 
 ## 🚀 Speed Tip
 To get logs quickly without complex queries, use the repository's helper script:
-`./scripts/aws_log_helper.sh [service] [duration]`
-*Example:* `./scripts/aws_log_helper.sh web 5m`
+`./scripts/aws_log_helper.sh [dev|prod] [service] [duration]`
+*Example:* `./scripts/aws_log_helper.sh prod web 5m`

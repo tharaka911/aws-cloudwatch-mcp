@@ -1,28 +1,43 @@
 #!/bin/bash
 
 # Sharkroll AWS Log Helper
-# Usage: ./aws_log_helper.sh [web|worker|cron] [duration (e.g., 2m, 1h)]
+# Usage: ./aws_log_helper.sh [dev|prod] [web|worker|cron|notification] [duration (e.g., 2m, 1h)]
 
-SERVICE=$1
-DURATION=${2:-2m}
-PROFILE="shark-dev-logs"
-REGION="us-east-1"
+if [[ "$1" == "dev" || "$1" == "prod" ]]; then
+  ENV=$1
+  SERVICE=$2
+  DURATION=${3:-2m}
+else
+  ENV="dev"
+  SERVICE=$1
+  DURATION=${2:-2m}
+fi
+
+if [ "$ENV" == "prod" ]; then
+  PROFILE="shark-prod-logs"
+  REGION="eu-west-1"
+  ENV_PREFIX="prod"
+else
+  PROFILE="shark-dev-logs"
+  REGION="us-east-1"
+  ENV_PREFIX="dev"
+fi
 
 case $SERVICE in
   web)
-    LOG_GROUP="/ecs/shark-dev-web"
+    LOG_GROUP="/ecs/shark-${ENV_PREFIX}-web"
     ;;
   worker)
-    LOG_GROUP="/ecs/shark-dev-worker"
+    LOG_GROUP="/ecs/shark-${ENV_PREFIX}-worker"
     ;;
   cron)
-    LOG_GROUP="/ecs/shark-dev-cron"
+    LOG_GROUP="/ecs/shark-${ENV_PREFIX}-cron"
     ;;
   notification)
-    LOG_GROUP="/ecs/shark-dev-notification"
+    LOG_GROUP="/ecs/shark-${ENV_PREFIX}-notification"
     ;;
   *)
-    echo "Usage: $0 [web|worker|cron|notification] [duration]"
+    echo "Usage: $0 [dev|prod] [web|worker|cron|notification] [duration]"
     exit 1
     ;;
 esac

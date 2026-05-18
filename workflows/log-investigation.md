@@ -7,22 +7,22 @@ description: How to investigate logs for Sharkroll services (Web, Worker, Cron) 
 Use this workflow to quickly query logs across different Sharkroll services.
 
 ## Service Mapping
-| Service | Log Group | Purpose |
-|---------|-----------|---------|
-| **Web** | `/ecs/shark-dev-web` | REST API requests, public endpoints |
-| **Worker** | `/ecs/shark-dev-worker` | Message broker consumers, background tasks |
-| **Cron** | `/ecs/shark-dev-cron` | Scheduled tasks, rake-back, leader jobs |
-| **Notification** | `/ecs/shark-dev-notification` | Real-time SSE, Redis Pub/Sub, client events |
+| Service | Dev Log Group | Prod Log Group | Purpose |
+|---------|---------------|----------------|---------|
+| **Web** | `/ecs/shark-dev-web` | `/ecs/shark-prod-web` | REST API requests, public endpoints |
+| **Worker** | `/ecs/shark-dev-worker` | `/ecs/shark-prod-worker` | Message broker consumers, background tasks |
+| **Cron** | `/ecs/shark-dev-cron` | `/ecs/shark-prod-cron` | Scheduled tasks, rake-back, leader jobs |
+| **Notification** | `/ecs/shark-dev-notification` | `/ecs/shark-prod-notification` | Real-time SSE, Redis Pub/Sub, client events |
 
 ## Fast Log Retrieval (Recommended)
 For most investigations, use the rapid-access script located in the repository. It is significantly faster than standard Insights queries.
 
 ### 1. Using the Helper Script
 ```bash
-./scripts/aws_log_helper.sh [web|worker|cron|notification] [duration]
+./scripts/aws_log_helper.sh [dev|prod] [web|worker|cron|notification] [duration]
 ```
 - **Execution**: Can be run by the user or the AI Assistant.
-- **Example**: `./scripts/aws_log_helper.sh worker 5m`
+- **Example**: `./scripts/aws_log_helper.sh prod worker 5m`
 
 ---
 
@@ -76,10 +76,12 @@ aws logs start-query --log-group-name /ecs/shark-dev-web \
 
 ## AI Instructions
 1. **Prefer Optimized Path**: Start by using `./scripts/aws_log_helper.sh` if the request is a simple "check logs" or "tail logs" task.
-2. **Detailed Research**: Use the `cloudwatch` MCP server for complex pattern matching or cross-log analysis.
+2. **Detailed Research**: Use the `cloudwatch` MCP servers (`cloudwatch-shark-dev` or `cloudwatch-shark-prod`) for complex pattern matching or cross-log analysis.
 3. **Identity & Mapping**:
-   - Web: `/ecs/shark-dev-web`
-   - Worker: `/ecs/shark-dev-worker`
-   - Cron: `/ecs/shark-dev-cron`
-   - Notification: `/ecs/shark-dev-notification`
+   - Web: `/ecs/shark-{env}-web`
+   - Worker: `/ecs/shark-{env}-worker`
+   - Cron: `/ecs/shark-{env}-cron`
+   - Notification: `/ecs/shark-{env}-notification`
+   - **Regions**: Dev is `us-east-1`, Prod is `eu-west-1`.
+   - **Profiles**: Dev is `shark-dev-logs`, Prod is `shark-prod-logs`.
 4. **Output Management**: Redirect large log outputs to a temporary file (e.g., `/tmp/logs.txt`) before analysis to avoid context window flooding.
