@@ -1,6 +1,6 @@
 # Custom AWS CloudWatch MCP & Log Helper
 
-A specialized Model Context Protocol (MCP) server for AWS CloudWatch, bundled with rapid-access scripts, persistent memory, and AI-driven troubleshooting workflows.
+A specialized Model Context Protocol (MCP) server for AWS CloudWatch, bundled with rapid-access scripts, persistent memory, and AI-driven troubleshooting workflows for both the **Development** and **Production** environments.
 
 ---
 
@@ -8,13 +8,14 @@ A specialized Model Context Protocol (MCP) server for AWS CloudWatch, bundled wi
 
 ```text
 .
-├── memory.md               # 🧠 Persistent context (Log Groups, ARNs, Queries)
+├── memory.md               # 🧠 Persistent context (Log Groups, ARNs, Queries for Dev & Prod)
 ├── scripts/
-│   └── aws_log_helper.sh   # ⚡ Fast log retrieval script
+│   └── aws_log_helper.sh   # ⚡ Fast log retrieval script supporting dual environments
 ├── workflows/
 │   └── log-investigation.md# 🛠 Multi-step investigation guide
 ├── Dockerfile              # 🐳 Containerized MCP server
 ├── pyproject.toml          # 📦 MCP server dependencies
+├── aws-setup.md            # ☁️ AWS credentials configuration guide
 └── README.md               # 📖 You are here
 ```
 
@@ -22,16 +23,16 @@ A specialized Model Context Protocol (MCP) server for AWS CloudWatch, bundled wi
 
 ## 🧠 Using `memory.md` for AI Context
 
-The `memory.md` file is designed to be provided as **immediate context** to your AI assistant. This eliminates the need for the AI to "discover" log groups manually, reducing latency and API calls.
+The `memory.md` file is designed to be provided as **immediate context** to your AI assistant. This eliminates the need for the AI to "discover" log groups manually, reducing latency and AWS API calls.
 
 ### How to use it:
 When starting a log-related task, include `@memory.md` in your prompt.
 
 **Example Prompt:**
-> "Using @memory.md, check the last 10 minutes of logs for the `web` service to see if there are any 500 errors."
+> "Using @memory.md, check the last 10 minutes of logs for the `prod` `web` service to see if there are any 500 errors."
 
 ### What's inside?
-- **Mapped Log Groups**: Direct mapping of services (Web, Worker, Cron, Admin, DB) to their CloudWatch names.
+- **Mapped Log Groups**: Direct mapping of services (Web, Worker, Cron, Admin, DB) to their CloudWatch names in both `us-east-1` (Dev) and `eu-west-1` (Prod).
 - **Common Queries**: Pre-tested Log Insights queries for error spikes, user searches, and performance analysis.
 
 ---
@@ -39,7 +40,7 @@ When starting a log-related task, include `@memory.md` in your prompt.
 ## 🚀 Setup & Installation
 
 ### 0. AWS Credentials Setup
-Before building or using the MCP server, ensure you have an AWS profile configured with the correct credentials.
+Before building or using the MCP server, ensure you have your AWS profiles configured with the correct IAM credentials.
 - **Guide**: [AWS Credentials & Profile Setup](file:///Users/tharaka/kingit-developments/sharkroll/custom-aws-cloud-watch-mcp/aws-setup.md)
 
 ### 1. Build the MCP Server
@@ -49,25 +50,42 @@ docker build -t custom/cloudwatch-mcp-server .
 ```
 
 ### 2. Configure Your AI Assistant
-Add the following to your `mcp_config.json` (usually found in `~/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json` or similar for other assistants):
+Add the following servers to your `mcp_config.json` (usually found in `~/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json` or similar for other assistants) to enable both dev and prod log access:
 
 ```json
-"cloudwatch": {
-  "command": "docker",
-  "args": [
-    "run", "--rm", "-i",
-    "-v", "/Users/YOUR_USER/.aws:/root/.aws:ro",
-    "-e", "AWS_PROFILE=shark-dev-logs",
-    "-e", "AWS_REGION=us-east-1",
-    "-e", "AWS_SDK_LOAD_CONFIG=1",
-    "-e", "AWS_CONFIG_FILE=/root/.aws/config",
-    "-e", "AWS_SHARED_CREDENTIALS_FILE=/root/.aws/credentials",
-    "custom/cloudwatch-mcp-server"
-  ]
+{
+  "mcpServers": {
+    "cloudwatch-shark-dev": {
+      "command": "docker",
+      "args": [
+        "run", "--rm", "-i",
+        "-v", "/Users/YOUR_USER/.aws:/root/.aws:ro",
+        "-e", "AWS_PROFILE=shark-dev-logs",
+        "-e", "AWS_REGION=us-east-1",
+        "-e", "AWS_SDK_LOAD_CONFIG=1",
+        "-e", "AWS_CONFIG_FILE=/root/.aws/config",
+        "-e", "AWS_SHARED_CREDENTIALS_FILE=/root/.aws/credentials",
+        "custom/cloudwatch-mcp-server"
+      ]
+    },
+    "cloudwatch-shark-prod": {
+      "command": "docker",
+      "args": [
+        "run", "--rm", "-i",
+        "-v", "/Users/YOUR_USER/.aws:/root/.aws:ro",
+        "-e", "AWS_PROFILE=shark-prod-logs",
+        "-e", "AWS_REGION=eu-west-1",
+        "-e", "AWS_SDK_LOAD_CONFIG=1",
+        "-e", "AWS_CONFIG_FILE=/root/.aws/config",
+        "-e", "AWS_SHARED_CREDENTIALS_FILE=/root/.aws/credentials",
+        "custom/cloudwatch-mcp-server"
+      ]
+    }
+  }
 }
 ```
 > [!IMPORTANT]
-> Change `/Users/YOUR_USER/.aws` to your actual home directory path.
+> Change `/Users/YOUR_USER/.aws` to your actual home directory path on your host machine.
 
 ---
 
@@ -75,8 +93,8 @@ Add the following to your `mcp_config.json` (usually found in `~/Library/Applica
 
 ### 1. Rapid-Access Log Helper (`scripts/`)
 A high-speed alternative to CloudWatch Insights for quick log tailing and basic checks.
-- **Manual Usage**: `./scripts/aws_log_helper.sh [web|worker|cron] [duration]`
-- **Example**: `./scripts/aws_log_helper.sh web 5m`
+- **Manual Usage**: `./scripts/aws_log_helper.sh [dev|prod] [web|worker|cron] [duration]`
+- **Example**: `./scripts/aws_log_helper.sh prod web 5m`
 
 ### 2. Standardized Workflows (`workflows/`)
 Step-by-step guides for AI assistants to follow consistent troubleshooting procedures.
@@ -90,7 +108,8 @@ A Docker-hardened version of the standard AWS CloudWatch MCP server that resolve
 ## 🤖 Example AI Prompts
 
 - **The "One-Shot" Investigation**:
-  > "Using @memory.md and @[workflows/log-investigation.md], find why user `uuid-123` is failing their deposit."
+  > "Using @memory.md and @[workflows/log-investigation.md], find why user `uuid-123` is failing their deposit in `prod`."
   
 - **Quick Health Check**:
-  > "@[scripts/aws_log_helper.sh] check the `worker` logs for the last 15m and summarize any errors."
+  > "@[scripts/aws_log_helper.sh] check the `prod` `worker` logs for the last 15m and summarize any errors."
+
